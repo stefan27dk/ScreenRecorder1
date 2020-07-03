@@ -18,14 +18,20 @@ namespace ScreenRecorder1
         Bitmap bmp1;
 
         Bitmap LatImage;
-        int count_FPS;
+        int count_FPS = 0;
         int check_Time = 0;
+
+
+
 
 
         public Form1()
         {
             InitializeComponent();  
         }
+
+
+
 
 
 
@@ -38,25 +44,40 @@ namespace ScreenRecorder1
         private void TimerSec_Settings()
         {
             TimerSec = new System.Windows.Forms.Timer();
-            TimerSec.Interval = 1000;
+            TimerSec.Interval = 10;
             TimerSec.Tick += new EventHandler(TimerSec_Tick);
             TimerSec.Enabled = true;
             TimerSec.Start();
-
+            
         }
 
 
          // FPS -Timer - Tick
         void TimerSec_Tick(object sender, EventArgs e)
         {
-            check_Time = 1;
+         
+                
+                current_fps_label.Text = count_FPS.ToString();
+
+         
+
+
+            
+            //!!!!!!!!!!!!!!!!!!!!!!!TEST
+
+            this.BackColor = Color.Red;
+
+          
+            
         }
 
 
  
+
+
          
 
-
+        // Load
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -81,65 +102,75 @@ namespace ScreenRecorder1
            
             while(true)
             {
-                  
-                   Rectangle screenBounds = Screen.GetBounds(Point.Empty);  // Screen Size
+
+
+                // Current - FPS::::START::::: 
+                count_FPS++;
+
+              
+
+                // Current - FPS::::END::::: 
+
+
+
+
+
+
+                // Image::::::START::::::::
+
+                Rectangle screenBounds = Screen.GetBounds(Point.Empty);  // Screen Size
                    bmp1 = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height); // BMP
                    Graphics g = Graphics.FromImage(bmp1); // Graphics
                    g.CopyFromScreen(Point.Empty, Point.Empty, screenBounds.Size); // Screen To BMP
 
+                  // Image::::::END::::::::
 
-                // Display
+
+
+
+
+
+                // Display::::::START:::::::
                 Invoke(new Action(() =>
                 {
 
                     Player_pictureBox.BackgroundImage = bmp1;
                     Player_pictureBox.BackgroundImageLayout = ImageLayout.Stretch;
                      
-                }));    
+                }));
+                // Display::::::END:::::::
 
-                 // Dispose Last Image
+
+
+
+                //CLEAN:::::::START:::::::
+
+                // Dispose Last Image
                 if (bmp1 != LatImage && LatImage != null)
                 {
                     LatImage.Dispose();
                 }
 
+
                 // Assign Last Image 
                 LatImage = bmp1;
-
-
                 g.Dispose();
-                //bmp1.Dispose();
 
-                int.TryParse(FPS_textBox.Text, out int fps);
-                Thread.Sleep(fps);
+                //CLEAN:::::::END:::::::
 
 
-
-                //if (DateTime.Now.AddSeconds(1) <= 1000)
-                //{
-                //    count_FPS = count_FPS + 1;
-                //}
-                //else
-                //{
-                //    count_FPS = 0;
-                //}
-                //
-
-                //count_FPS = count_FPS + 1;
-                
-
-                Invoke(new Action(() =>
-                {
-                    //current_fps_label.Text = count_FPS.ToString();
-                    current_fps_label.Text = DateTime.Now.AddSeconds(1);
-
-                }));
+               
+                //FPS::Settings:::::START:::::::
+                int.TryParse(FPS_textBox.Text, out int fps);  
+                Thread.Sleep(fps); // THREAD SLEEP   
+                //FPS::Settings:::::END:::::::
 
             }
 
-         
-                     
+
+
         }
+
 
 
 
