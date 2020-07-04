@@ -14,10 +14,23 @@ namespace ScreenRecorder1
 {
     public partial class Form1 : Form
     {
-        Thread captureThread;
-        Bitmap bmp1;
+        // Recording Size
+        Size CaptureSize = new Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
 
+
+
+         // Capture Thread
+        Thread captureThread;
+
+        // Captured Frame
+        Bitmap Frame_Bmp1;
+
+
+
+        // Last image for disposing
         Bitmap LatImage;
+
+
         int count_FPS = 0;
         int check_Time = 0;
 
@@ -44,7 +57,7 @@ namespace ScreenRecorder1
         private void TimerSec_Settings()
         {
             TimerSec = new System.Windows.Forms.Timer();
-            TimerSec.Interval = 10;
+            TimerSec.Interval = 1000;
             TimerSec.Tick += new EventHandler(TimerSec_Tick);
             TimerSec.Enabled = true;
             TimerSec.Start();
@@ -52,17 +65,17 @@ namespace ScreenRecorder1
         }
 
 
+
+
+
          // FPS -Timer - Tick
         void TimerSec_Tick(object sender, EventArgs e)
         {
          
                 
-                current_fps_label.Text = count_FPS.ToString();
+           
+           check_Time = 1;
 
-         
-
-
-            
             //!!!!!!!!!!!!!!!!!!!!!!!TEST
 
             this.BackColor = Color.Red;
@@ -99,31 +112,36 @@ namespace ScreenRecorder1
        // Capture Screen
         private void CaptureScreen()
         {
-           
-            while(true)
+            
+
+
+            while (true)
             {
+                    // Count Frames
+                    count_FPS++;
 
 
-                // Current - FPS::::START::::: 
-                count_FPS++;
+                   //Display FPS:::START:::
+                   if(check_Time == 1)
+                   {
 
-              
+                      Invoke(new Action(() =>
+                      {
+                          current_fps_label.Text = count_FPS.ToString(); // Display FPS
+                      }));
 
-                // Current - FPS::::END::::: 
-
-
-
+                     check_Time = 0; // Reset
+                     count_FPS = 0; // Reset
+                   }
+                //Display FPS:::END:::
 
 
 
                 // Image::::::START::::::::
-
-                Rectangle screenBounds = Screen.GetBounds(Point.Empty);  // Screen Size
-                   bmp1 = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height); // BMP
-                   Graphics g = Graphics.FromImage(bmp1); // Graphics
-                   g.CopyFromScreen(Point.Empty, Point.Empty, screenBounds.Size); // Screen To BMP
-
-                  // Image::::::END::::::::
+                Frame_Bmp1 = new Bitmap(CaptureSize.Width, CaptureSize.Height); // BMP
+                   Graphics g = Graphics.FromImage(Frame_Bmp1); // Graphics
+                   g.CopyFromScreen(Point.Empty, Point.Empty, CaptureSize); // Screen To BMP
+                   // Image::::::END::::::::
 
 
 
@@ -133,12 +151,11 @@ namespace ScreenRecorder1
                 // Display::::::START:::::::
                 Invoke(new Action(() =>
                 {
-
-                    Player_pictureBox.BackgroundImage = bmp1;
+                    Player_pictureBox.BackgroundImage = Frame_Bmp1;
                     Player_pictureBox.BackgroundImageLayout = ImageLayout.Stretch;
-                     
                 }));
                 // Display::::::END:::::::
+
 
 
 
@@ -146,17 +163,19 @@ namespace ScreenRecorder1
                 //CLEAN:::::::START:::::::
 
                 // Dispose Last Image
-                if (bmp1 != LatImage && LatImage != null)
+                if (Frame_Bmp1 != LatImage && LatImage != null)
                 {
                     LatImage.Dispose();
                 }
 
 
                 // Assign Last Image 
-                LatImage = bmp1;
+                LatImage = Frame_Bmp1;
                 g.Dispose();
 
                 //CLEAN:::::::END:::::::
+
+
 
 
                
@@ -165,11 +184,16 @@ namespace ScreenRecorder1
                 Thread.Sleep(fps); // THREAD SLEEP   
                 //FPS::Settings:::::END:::::::
 
+
             }
 
 
 
         }
+
+
+
+
 
 
 
